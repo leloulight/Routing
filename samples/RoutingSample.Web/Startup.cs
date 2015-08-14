@@ -19,6 +19,17 @@ namespace RoutingSample.Web
 
         public void Configure(IApplicationBuilder builder)
         {
+
+            builder.UseRouter(routes =>
+            {
+                routes.MapRoute("api/products/{id?}", async (context) => await context.Response.WriteAsync("Hello, Router World!"));
+
+                routes.MapRoute("glimpse/foo", app =>
+                {
+                    app.Us
+                });
+            });
+
             var endpoint1 = new DelegateRouteEndpoint(async (context) =>
                                                         await context
                                                                 .HttpContext

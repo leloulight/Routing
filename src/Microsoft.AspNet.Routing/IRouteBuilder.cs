@@ -3,11 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNet.Builder;
 
 namespace Microsoft.AspNet.Routing
 {
     public interface IRouteBuilder
     {
+        IApplicationBuilder ApplicationBuilder { get; }
+
         IRouter DefaultHandler { get; set; }
 
         IServiceProvider ServiceProvider { get; }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNet.Builder;
 
 namespace Microsoft.AspNet.Routing
 {
@@ -12,6 +13,8 @@ namespace Microsoft.AspNet.Routing
         {
             Routes = new List<IRouter>();
         }
+
+        public IApplicationBuilder ApplicationBuilder { get; set; }
 
         public IRouter DefaultHandler { get; set; }
 
