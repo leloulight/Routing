@@ -14,7 +14,7 @@ namespace Microsoft.AspNet.Routing
         /// <summary>
         /// Gets or sets the default <see cref="IRouter"/> that is used if an <see cref="IRouter"/> is added to the list of routes but does not specify its own.
         /// </summary>
-        IRouter DefaultHandler { get; set; }
+        IRouteEndpoint DefaultHandler { get; set; }
 
         IServiceProvider ServiceProvider { get; }
 

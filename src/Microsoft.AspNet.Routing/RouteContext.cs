@@ -19,7 +19,7 @@ namespace Microsoft.AspNet.Routing
 
         public HttpContext HttpContext { get; private set; }
 
-        public bool IsHandled { get; set; }
+        public RoutedRequestDelegate Handler { get; set; }
 
         public RouteData RouteData
         {

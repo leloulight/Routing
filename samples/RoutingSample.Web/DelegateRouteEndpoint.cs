@@ -2,32 +2,30 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Routing;
 
 namespace RoutingSample.Web
 {
-    public class DelegateRouteEndpoint : IRouter
+    public class DelegateRouteEndpoint : IRouteEndpoint
     {
         public delegate Task RoutedDelegate(RouteContext context);
 
-        private readonly RoutedDelegate _appFunc;
+        private readonly RoutedRequestDelegate _appFunc;
 
-        public DelegateRouteEndpoint(RoutedDelegate appFunc)
+        public DelegateRouteEndpoint(RequestDelegate appFunc)
+        {
+            _appFunc = (httpContext, routeData) => appFunc(httpContext);
+        }
+
+        public DelegateRouteEndpoint(RoutedRequestDelegate appFunc)
         {
             _appFunc = appFunc;
         }
 
-        public async Task RouteAsync(RouteContext context)
+        public RoutedRequestDelegate CreateHandler(RouteData routeData)
         {
-            await _appFunc(context);
-            context.IsHandled = true;
-        }
-
-        public VirtualPathData GetVirtualPath(VirtualPathContext context)
-        {
-            // We don't really care what the values look like.
-            context.IsBound = true;
-            return null;
+            return _appFunc;
         }
     }
 }

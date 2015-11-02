@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +16,7 @@ namespace Microsoft.AspNet.Routing.Template
         private readonly IReadOnlyDictionary<string, IRouteConstraint> _constraints;
         private readonly IReadOnlyDictionary<string, object> _dataTokens;
         private readonly IReadOnlyDictionary<string, object> _defaults;
-        private readonly IRouter _target;
+        private readonly IRouteEndpoint _target;
         private readonly RouteTemplate _parsedTemplate;
         private readonly string _routeTemplate;
         private readonly TemplateMatcher _matcher;
@@ -24,7 +25,7 @@ namespace Microsoft.AspNet.Routing.Template
         private ILogger _constraintLogger;
 
         public TemplateRoute(
-            IRouter target,
+            IRouteEndpoint target,
             string routeTemplate,
             IInlineConstraintResolver inlineConstraintResolver)
             : this(
@@ -38,7 +39,7 @@ namespace Microsoft.AspNet.Routing.Template
         }
 
         public TemplateRoute(
-            IRouter target,
+            IRouteEndpoint target,
             string routeTemplate,
             IDictionary<string, object> defaults,
             IDictionary<string, object> constraints,
@@ -49,7 +50,7 @@ namespace Microsoft.AspNet.Routing.Template
         }
 
         public TemplateRoute(
-            IRouter target,
+            IRouteEndpoint target,
             string routeName,
             string routeTemplate,
             IDictionary<string, object> defaults,
@@ -106,7 +107,7 @@ namespace Microsoft.AspNet.Routing.Template
             get { return _constraints; }
         }
 
-        public async virtual Task RouteAsync(RouteContext context)
+        public virtual Task RouteAsync(RouteContext context)
         {
             if (context == null)
             {
@@ -121,7 +122,7 @@ namespace Microsoft.AspNet.Routing.Template
             if (values == null)
             {
                 // If we got back a null value set, that means the URI did not match
-                return;
+                return TaskCache.CompletedTask;
             }
 
             var oldRouteData = context.RouteData;
@@ -135,7 +136,6 @@ namespace Microsoft.AspNet.Routing.Template
                 MergeValues(newRouteData.DataTokens, _dataTokens);
             }
 
-            newRouteData.Routers.Add(_target);
             MergeValues(newRouteData.Values, values);
 
             if (!RouteConstraintMatcher.Match(
@@ -146,7 +146,7 @@ namespace Microsoft.AspNet.Routing.Template
                 RouteDirection.IncomingRequest,
                 _constraintLogger))
             {
-                return;
+                return TaskCache.CompletedTask;
             }
 
             _logger.LogVerbose(
@@ -158,12 +158,15 @@ namespace Microsoft.AspNet.Routing.Template
             {
                 context.RouteData = newRouteData;
 
-                await _target.RouteAsync(context);
+                var handler = _target.CreateHandler(context.RouteData);
+                context.Handler = handler;
+
+                return TaskCache.CompletedTask;
             }
             finally
             {
                 // Restore the original values to prevent polluting the route data.
-                if (!context.IsHandled)
+                if (context.Handler == null)
                 {
                     context.RouteData = oldRouteData;
                 }
@@ -180,28 +183,16 @@ namespace Microsoft.AspNet.Routing.Template
             }
 
             EnsureLoggers(context.Context);
-            if (!RouteConstraintMatcher.Match(Constraints,
-                                              values.CombinedValues,
-                                              context.Context,
-                                              this,
-                                              RouteDirection.UrlGeneration,
-                                              _constraintLogger))
+            if (!RouteConstraintMatcher.Match(
+                Constraints,
+                values.CombinedValues,
+                context.Context,
+                this,
+                RouteDirection.UrlGeneration,
+                _constraintLogger))
             {
                 return null;
             }
-
-            // Validate that the target can accept these values.
-            var childContext = CreateChildVirtualPathContext(context, values.AcceptedValues);
-
-            var pathData = _target.GetVirtualPath(childContext);
-            if (pathData != null)
-            {
-                // If the target generates a value then that can short circuit.
-                return pathData;
-            }
-
-            // If we can produce a value go ahead and do it, the caller can check context.IsBound
-            // to see if the values were validated.
 
             // When we still cannot produce a value, this should return null.
             var tempPath = _binder.BindValues(values.AcceptedValues);
@@ -210,7 +201,7 @@ namespace Microsoft.AspNet.Routing.Template
                 return null;
             }
 
-            pathData = new VirtualPathData(this, tempPath);
+            var pathData = new VirtualPathData(this, tempPath);
             if (DataTokens != null)
             {
                 foreach (var dataToken in DataTokens)
@@ -219,41 +210,7 @@ namespace Microsoft.AspNet.Routing.Template
                 }
             }
 
-            context.IsBound = childContext.IsBound;
-
             return pathData;
-        }
-
-        private VirtualPathContext CreateChildVirtualPathContext(
-            VirtualPathContext context,
-            IDictionary<string, object> acceptedValues)
-        {
-            // We want to build the set of values that would be provided if this route were to generated
-            // a link and then immediately match it. This includes all the accepted parameter values, and
-            // the defaults. Accepted values that would go in the query string aren't included.
-            var providedValues = new RouteValueDictionary();
-
-            foreach (var parameter in _parsedTemplate.Parameters)
-            {
-                object value;
-                if (acceptedValues.TryGetValue(parameter.Name, out value))
-                {
-                    providedValues.Add(parameter.Name, value);
-                }
-            }
-
-            foreach (var kvp in _defaults)
-            {
-                if (!providedValues.ContainsKey(kvp.Key))
-                {
-                    providedValues.Add(kvp.Key, kvp.Value);
-                }
-            }
-
-            return new VirtualPathContext(context.Context, context.AmbientValues, context.Values)
-            {
-                ProvidedValues = providedValues,
-            };
         }
 
         private static IReadOnlyDictionary<string, IRouteConstraint> GetConstraints(

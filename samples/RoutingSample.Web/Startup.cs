@@ -20,18 +20,12 @@ namespace RoutingSample.Web
 
         public void Configure(IApplicationBuilder builder)
         {
-            var endpoint1 = new DelegateRouteEndpoint(async (context) =>
-                                                        await context
-                                                                .HttpContext
-                                                                .Response
-                                                                .WriteAsync(
-                                                                  "match1, route values -" + context.RouteData.Values.Print()));
+            var endpoint1 = new DelegateRouteEndpoint((context, routeData) =>
+            {
+                return context.Response.WriteAsync("match1, route values -" + routeData.Values.Print());
+            });
 
-            var endpoint2 = new DelegateRouteEndpoint(async (context) =>
-                                                        await context
-                                                                .HttpContext
-                                                                .Response
-                                                                .WriteAsync("Hello, World!"));
+            var endpoint2 = new DelegateRouteEndpoint((context) => context.Response.WriteAsync("Hello, World!"));
 
             var routeBuilder = new RouteBuilder();
             routeBuilder.DefaultHandler = endpoint1;

@@ -5,8 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Routing;
-using Microsoft.AspNet.Routing.Logging;
-using Microsoft.AspNet.Routing.Logging.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNet.Builder
@@ -35,11 +33,15 @@ namespace Microsoft.AspNet.Builder
 
             await _router.RouteAsync(context);
 
-            if (!context.IsHandled)
+            if (context.Handler == null)
             {
                 _logger.LogVerbose("Request did not match any routes.");
 
                 await _next.Invoke(httpContext);
+            }
+            else
+            {
+                await context.Handler(context.HttpContext, context.RouteData);
             }
         }
     }
