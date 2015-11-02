@@ -99,6 +99,74 @@ namespace Microsoft.AspNet.Builder
             return routeBuilder;
         }
 
+        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
+        {
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
+            routeBuilder.Routes.Add(new Route(builder.Build(), new DelegateRouteEndpoint(handler)));
+            return routeBuilder;
+        }
+
+        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
+        {
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
+            routeBuilder.Routes.Add(new Route(builder.Build(), new DelegateRouteEndpoint(handler)));
+            return routeBuilder;
+        }
+
+        public static IRouteBuilder MapDelete(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "DELETE", handler);
+        }
+
+        public static IRouteBuilder MapDelete(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "DELETE", handler);
+        }
+
+        public static IRouteBuilder MapGet(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "GET", handler);
+        }
+
+        public static IRouteBuilder MapGet(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "GET", handler);
+        }
+
+        public static IRouteBuilder MapPost(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "POST", handler);
+        }
+
+        public static IRouteBuilder MapPost(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "POST", handler);
+        }
+
+        public static IRouteBuilder MapPut(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "PUT", handler);
+        }
+
+        public static IRouteBuilder MapPut(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
+        {
+            return routeBuilder.MapVerb(template, "PUT", handler);
+        }
+
+        public static IRouteBuilder MapVerb(this IRouteBuilder routeBuilder, string template, string verb, RequestDelegate handler)
+        {
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
+            routeBuilder.Routes.Add(new VerbRoute(builder.Build(), new DelegateRouteEndpoint(handler), verb));
+            return routeBuilder;
+        }
+
+        public static IRouteBuilder MapVerb(this IRouteBuilder routeBuilder, string template, string verb, RoutedRequestDelegate handler)
+        {
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
+            routeBuilder.Routes.Add(new VerbRoute(builder.Build(), new DelegateRouteEndpoint(handler), verb));
+            return routeBuilder;
+        }
+
         private static IDictionary<string, object> ObjectToDictionary(object value)
         {
             var dictionary = value as IDictionary<string, object>;

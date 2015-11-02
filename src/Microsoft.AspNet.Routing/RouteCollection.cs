@@ -58,16 +58,10 @@ namespace Microsoft.AspNet.Routing
             for (var i = 0; i < Count; i++)
             {
                 var route = this[i];
-
-                var oldRouteData = context.RouteData;
-
-                var newRouteData = new RouteData(oldRouteData);
-                newRouteData.Routers.Add(route);
+                context.RouteData.Routers.Add(route);
 
                 try
                 {
-                    context.RouteData = newRouteData;
-
                     await route.RouteAsync(context);
                     if (context.Handler != null)
                     {
@@ -78,7 +72,7 @@ namespace Microsoft.AspNet.Routing
                 {
                     if (context.Handler == null)
                     {
-                        context.RouteData = oldRouteData;
+                        context.RouteData.Routers.RemoveAt(context.RouteData.Routers.Count - 1);
                     }
                 }
             }

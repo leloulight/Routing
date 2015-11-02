@@ -3,9 +3,8 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Routing;
 
-namespace RoutingSample.Web
+namespace Microsoft.AspNet.Routing
 {
     public class DelegateRouteEndpoint : IRouteEndpoint
     {

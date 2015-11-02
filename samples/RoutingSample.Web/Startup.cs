@@ -27,19 +27,25 @@ namespace RoutingSample.Web
 
             var endpoint2 = new DelegateRouteEndpoint((context) => context.Response.WriteAsync("Hello, World!"));
 
-            var routeBuilder = app.UseRouter(endpoint1);
+            var routes = app.UseRouter(endpoint1);
 
-            routeBuilder.AddPrefixRoute("api/store");
+            routes.MapGet("verbs/Get", c => c.Response.WriteAsync("This is a GET"));
+            routes.MapPut("verbs/Put", c => c.Response.WriteAsync("This is a PUT"));
+            routes.MapPost("verbs/Post", c => c.Response.WriteAsync("This is a POST"));
+            routes.MapDelete("verbs/Delete", c => c.Response.WriteAsync("This is a DELETE"));
+            routes.MapRoute("verbs/{verb}", c => c.Response.WriteAsync($"This is a {c.Request.Method}"));
 
-            routeBuilder.MapRoute("defaultRoute",
+            routes.AddPrefixRoute("api/store");
+
+            routes.MapRoute("defaultRoute",
                                   "api/constraint/{controller}",
                                   null,
                                   new { controller = "my.*" });
-            routeBuilder.MapRoute("regexStringRoute",
+            routes.MapRoute("regexStringRoute",
                                   "api/rconstraint/{controller}",
                                   new { foo = "Bar" },
                                   new { controller = new RegexRouteConstraint("^(my.*)$") });
-            routeBuilder.MapRoute("regexRoute",
+            routes.MapRoute("regexRoute",
                                   "api/r2constraint/{controller}",
                                   new { foo = "Bar2" },
                                   new
@@ -48,18 +54,18 @@ namespace RoutingSample.Web
                                           new Regex("^(my.*)$", RegexOptions.None, TimeSpan.FromSeconds(10)))
                                   });
 
-            routeBuilder.MapRoute("parameterConstraintRoute",
+            routes.MapRoute("parameterConstraintRoute",
                                   "api/{controller}/{*extra}",
                                   new { controller = "Store" });
 
-            routeBuilder.AddPrefixRoute("hello/world", endpoint2);
+            routes.AddPrefixRoute("hello/world", endpoint2);
 
-            routeBuilder.MapLocaleRoute("en-US", "store/US/{action}", new { controller = "Store" });
-            routeBuilder.MapLocaleRoute("en-GB", "store/UK/{action}", new { controller = "Store" });
+            routes.MapLocaleRoute("en-US", "store/US/{action}", new { controller = "Store" });
+            routes.MapLocaleRoute("en-GB", "store/UK/{action}", new { controller = "Store" });
 
-            routeBuilder.AddPrefixRoute("", endpoint2);
+            routes.AddPrefixRoute("", endpoint2);
 
-            app.UseRouter(routeBuilder.Build());
+            app.UseRouter(routes.Build());
         }
     }
 }

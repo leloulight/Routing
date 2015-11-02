@@ -1,32 +1,28 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Routing.Internal;
 
 namespace Microsoft.AspNet.Routing
 {
-    public class Route : RouteBase
+    public class VerbRoute : Route
     {
-        public Route(
-            RouteSpec routeSpec,
-            IRouteEndpoint target)
-            : base(routeSpec)
+        public VerbRoute(RouteSpec routeSpec, IRouteEndpoint target, string verb)
+            : base(routeSpec, target)
         {
-            if (target == null)
-            {
-                throw new ArgumentNullException(nameof(target));
-            }
-
-            Target = target;
+            Verb = verb;
         }
 
-        protected IRouteEndpoint Target { get; }
+        public string Verb { get; }
 
         public override Task OnRouteMatchedAsync(RouteContext context)
         {
-            context.Handler = Target.CreateHandler(context.RouteData);
+            if (context.HttpContext.Request.Method == Verb)
+            {
+                return base.OnRouteMatchedAsync(context);
+            }
+
             return TaskCache.CompletedTask;
         }
     }
