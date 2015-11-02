@@ -101,15 +101,23 @@ namespace Microsoft.AspNet.Builder
 
         public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, RequestDelegate handler)
         {
-            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
-            routeBuilder.Routes.Add(new Route(builder.Build(), new DelegateRouteEndpoint(handler)));
-            return routeBuilder;
+            return routeBuilder.MapRoute(template, new DelegateRouteEndpoint(handler));
         }
 
         public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, RoutedRequestDelegate handler)
         {
+            return routeBuilder.MapRoute(template, new DelegateRouteEndpoint(handler));
+        }
+
+        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, IApplicationBuilder handler)
+        {
+            return routeBuilder.MapRoute(template, new MiddlewareEndpoint(handler));
+        }
+
+        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, IRouteEndpoint handler)
+        {
             var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
-            routeBuilder.Routes.Add(new Route(builder.Build(), new DelegateRouteEndpoint(handler)));
+            routeBuilder.Routes.Add(new Route(builder.Build(), handler));
             return routeBuilder;
         }
 
@@ -155,15 +163,18 @@ namespace Microsoft.AspNet.Builder
 
         public static IRouteBuilder MapVerb(this IRouteBuilder routeBuilder, string template, string verb, RequestDelegate handler)
         {
-            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
-            routeBuilder.Routes.Add(new VerbRoute(builder.Build(), new DelegateRouteEndpoint(handler), verb));
-            return routeBuilder;
+            return routeBuilder.MapVerb(template, verb, new DelegateRouteEndpoint(handler));
         }
 
         public static IRouteBuilder MapVerb(this IRouteBuilder routeBuilder, string template, string verb, RoutedRequestDelegate handler)
         {
+            return routeBuilder.MapVerb(template, verb, new DelegateRouteEndpoint(handler));
+        }
+
+        public static IRouteBuilder MapVerb(this IRouteBuilder routeBuilder, string template, string verb, IRouteEndpoint handler)
+        {
             var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template);
-            routeBuilder.Routes.Add(new VerbRoute(builder.Build(), new DelegateRouteEndpoint(handler), verb));
+            routeBuilder.Routes.Add(new VerbRoute(builder.Build(), handler, verb));
             return routeBuilder;
         }
 

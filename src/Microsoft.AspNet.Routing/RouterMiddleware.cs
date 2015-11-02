@@ -41,8 +41,28 @@ namespace Microsoft.AspNet.Builder
             }
             else
             {
+                var feature = new DefaultRouterFeature()
+                {
+                    RouteData = context.RouteData,
+                    UrlGenerator = (name, values) => GenerateUrl(context, name, values),
+                };
+
+                context.HttpContext.Features[typeof(IRouterFeature)] = feature;
                 await context.Handler(context.HttpContext, context.RouteData);
             }
+        }
+
+        private PathString GenerateUrl(RouteContext context, string name, object values)
+        {
+            if (context?.RouteData?.Routers == null || context.RouteData.Routers.Count == 0)
+            {
+                return new PathString();
+            }
+
+            var virtualPathContext = new VirtualPathContext(context.HttpContext, context.RouteData.Values, new RouteValueDictionary(values));
+            var result = context.RouteData.Routers[0].GetVirtualPath(virtualPathContext);
+
+            return result.VirtualPath;
         }
     }
 }

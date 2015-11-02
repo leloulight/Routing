@@ -35,6 +35,12 @@ namespace RoutingSample.Web
             routes.MapDelete("verbs/Delete", c => c.Response.WriteAsync("This is a DELETE"));
             routes.MapRoute("verbs/{verb}", c => c.Response.WriteAsync($"This is a {c.Request.Method}"));
 
+            routes.MapRoute("middleware/{tenant}", app.New().Use(next => (context) =>
+            {
+                context.Request.Headers["TenantId"] = context.GetRouteValue("tenant");
+                return next(context);
+            }));
+
             routes.AddPrefixRoute("api/store");
 
             routes.MapRoute("defaultRoute",
