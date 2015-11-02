@@ -18,7 +18,7 @@ namespace Microsoft.AspNet.Routing.Template
 
         public TemplateMatcher(
             RouteTemplate template,
-            IReadOnlyDictionary<string, object> defaults)
+            RouteValueDictionary defaults)
         {
             if (template == null)
             {
@@ -29,11 +29,11 @@ namespace Microsoft.AspNet.Routing.Template
             Defaults = defaults ?? RouteValueDictionary.Empty;
         }
 
-        public IReadOnlyDictionary<string, object> Defaults { get; private set; }
+        public RouteValueDictionary Defaults { get; }
 
         public RouteTemplate Template { get; private set; }
 
-        public IDictionary<string, object> Match(PathString path)
+        public RouteValueDictionary Match(PathString path)
         {
             var i = 0;
             var pathTokenizer = new PathTokenizer(path);

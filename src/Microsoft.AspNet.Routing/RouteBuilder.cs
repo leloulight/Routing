@@ -13,6 +13,8 @@ namespace Microsoft.AspNet.Routing
             Routes = new List<IRouter>();
         }
 
+        public IInlineConstraintResolver ConstraintResolver { get; set; }
+
         public IRouteEndpoint DefaultHandler { get; set; }
 
         public IServiceProvider ServiceProvider { get; set; }

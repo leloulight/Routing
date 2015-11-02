@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNet.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNet.Builder
 {
@@ -30,6 +31,21 @@ namespace Microsoft.AspNet.Builder
             }
 
             return builder.UseMiddleware<RouterMiddleware>(router);
+        }
+
+        public static IRouteBuilder UseRouter(this IApplicationBuilder builder)
+        {
+            return builder.UseRouter(defaultHandler: null);
+        }
+
+        public static IRouteBuilder UseRouter(this IApplicationBuilder builder, IRouteEndpoint defaultHandler)
+        {
+            return new RouteBuilder()
+            {
+                ConstraintResolver = builder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>(),
+                DefaultHandler = defaultHandler,
+                ServiceProvider = builder.ApplicationServices,
+            };
         }
     }
 }

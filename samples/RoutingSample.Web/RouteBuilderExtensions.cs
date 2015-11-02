@@ -45,16 +45,12 @@ namespace RoutingSample.Web
             var defaultsDictionary = new RouteValueDictionary(defaults);
             defaultsDictionary.Add("locale", locale);
 
-            var constraintResolver = routeBuilder.ServiceProvider.GetService<IInlineConstraintResolver>();
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, routeTemplate)
+            {
+                Defaults = defaultsDictionary,
+            };
 
-            var route = new TemplateRoute(
-                target: routeBuilder.DefaultHandler,
-                routeTemplate: routeTemplate,
-                defaults: defaultsDictionary,
-                constraints: null,
-                dataTokens: null,
-                inlineConstraintResolver: constraintResolver);
-            routeBuilder.Routes.Add(route);
+            routeBuilder.Routes.Add(new Route(builder.Build(), routeBuilder.DefaultHandler));
 
             return routeBuilder;
         }

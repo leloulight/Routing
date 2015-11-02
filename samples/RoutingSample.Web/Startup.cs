@@ -18,7 +18,7 @@ namespace RoutingSample.Web
             services.AddRouting();
         }
 
-        public void Configure(IApplicationBuilder builder)
+        public void Configure(IApplicationBuilder app)
         {
             var endpoint1 = new DelegateRouteEndpoint((context, routeData) =>
             {
@@ -27,9 +27,7 @@ namespace RoutingSample.Web
 
             var endpoint2 = new DelegateRouteEndpoint((context) => context.Response.WriteAsync("Hello, World!"));
 
-            var routeBuilder = new RouteBuilder();
-            routeBuilder.DefaultHandler = endpoint1;
-            routeBuilder.ServiceProvider = builder.ApplicationServices;
+            var routeBuilder = app.UseRouter(endpoint1);
 
             routeBuilder.AddPrefixRoute("api/store");
 
@@ -61,7 +59,7 @@ namespace RoutingSample.Web
 
             routeBuilder.AddPrefixRoute("", endpoint2);
 
-            builder.UseRouter(routeBuilder.Build());
+            app.UseRouter(routeBuilder.Build());
         }
     }
 }

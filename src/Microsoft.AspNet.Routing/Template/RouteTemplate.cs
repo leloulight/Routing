@@ -8,12 +8,12 @@ using System.Linq;
 
 namespace Microsoft.AspNet.Routing.Template
 {
-    [DebuggerDisplay("{DebuggerToString()}")]
+    [DebuggerDisplay("{OriginalText}")]
     public class RouteTemplate
     {
         private const string SeparatorString = "/";
 
-        public RouteTemplate(List<TemplateSegment> segments)
+        public RouteTemplate(string originalText, List<TemplateSegment> segments)
         {
             if (segments == null)
             {
@@ -37,9 +37,11 @@ namespace Microsoft.AspNet.Routing.Template
             }
         }
 
-        public IList<TemplatePart> Parameters { get; private set; }
+        public string OriginalText { get; }
 
-        public IList<TemplateSegment> Segments { get; private set; }
+        public IList<TemplatePart> Parameters { get; }
+
+        public IList<TemplateSegment> Segments { get; }
 
         public TemplateSegment GetSegment(int index)
         {
@@ -49,11 +51,6 @@ namespace Microsoft.AspNet.Routing.Template
             }
 
             return index >= Segments.Count ? null : Segments[index];
-        }
-
-        private string DebuggerToString()
-        {
-            return string.Join(SeparatorString, Segments.Select(s => s.DebuggerToString()));
         }
     }
 }

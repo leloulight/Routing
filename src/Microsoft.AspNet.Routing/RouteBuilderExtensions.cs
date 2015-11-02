@@ -73,28 +73,28 @@ namespace Microsoft.AspNet.Builder
         /// <param name="constraints">An object that contains constraints for the route. The object's properties represent the names and values of the constraints.</param>
         /// <param name="dataTokens">An object that contains data tokens for the route. The object's properties represent the names and values of the data tokens.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder,
-                                             string name,
-                                             string template,
-                                             object defaults,
-                                             object constraints,
-                                             object dataTokens)
+        public static IRouteBuilder MapRoute(
+            this IRouteBuilder routeBuilder,
+            string name,
+            string template,
+            object defaults,
+            object constraints,
+            object dataTokens)
         {
             if (routeBuilder.DefaultHandler == null)
             {
                 throw new InvalidOperationException(Resources.DefaultHandler_MustBeSet);
             }
 
-            var inlineConstraintResolver = routeBuilder
-                                           .ServiceProvider
-                                           .GetRequiredService<IInlineConstraintResolver>();
-            routeBuilder.Routes.Add(new TemplateRoute(routeBuilder.DefaultHandler,
-                                                      name,
-                                                      template,
-                                                      ObjectToDictionary(defaults),
-                                                      ObjectToDictionary(constraints),
-                                                      ObjectToDictionary(dataTokens),
-                                                      inlineConstraintResolver));
+            var builder = new RouteSpecBuilder(routeBuilder.ConstraintResolver, template)
+            {
+                Constraints = ObjectToDictionary(constraints),
+                DataTokens = ObjectToDictionary(dataTokens),
+                Defaults = ObjectToDictionary(defaults),
+                RouteName = name,
+            };
+
+            routeBuilder.Routes.Add(new Route(builder.Build(), routeBuilder.DefaultHandler));
 
             return routeBuilder;
         }
