@@ -109,9 +109,16 @@ namespace Microsoft.AspNet.Builder
             return routeBuilder.MapRoute(template, new DelegateRouteEndpoint(handler));
         }
 
-        public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, IApplicationBuilder handler)
+        public static IRouteBuilder MapRouteToMiddleware(this IRouteBuilder routeBuilder, string template, IApplicationBuilder handler)
         {
             return routeBuilder.MapRoute(template, new MiddlewareEndpoint(handler));
+        }
+
+        public static IRouteBuilder MapRouteToMiddleware(this IRouteBuilder routeBuilder, string template, Action<IApplicationBuilder> handler)
+        {
+            var builder = routeBuilder.ApplicationBuilder.New();
+            handler(builder);
+            return routeBuilder.MapRoute(template, new MiddlewareEndpoint(builder));
         }
 
         public static IRouteBuilder MapRoute(this IRouteBuilder routeBuilder, string template, IRouteEndpoint handler)

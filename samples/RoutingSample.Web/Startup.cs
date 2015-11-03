@@ -20,14 +20,7 @@ namespace RoutingSample.Web
 
         public void Configure(IApplicationBuilder app)
         {
-            var endpoint1 = new DelegateRouteEndpoint((context, routeData) =>
-            {
-                return context.Response.WriteAsync("match1, route values -" + routeData.Values.Print());
-            });
-
-            var endpoint2 = new DelegateRouteEndpoint((context) => context.Response.WriteAsync("Hello, World!"));
-
-            var routes = app.UseRouter(endpoint1);
+            var routes = app.BuildRouteTable();
 
             routes.MapGet("verbs/Get", c => c.Response.WriteAsync("This is a GET"));
             routes.MapPut("verbs/Put", c => c.Response.WriteAsync("This is a PUT"));
@@ -35,43 +28,19 @@ namespace RoutingSample.Web
             routes.MapDelete("verbs/Delete", c => c.Response.WriteAsync("This is a DELETE"));
             routes.MapRoute("verbs/{verb}", c => c.Response.WriteAsync($"This is a {c.Request.Method}"));
 
-            routes.MapRoute("middleware/{tenant}", app.New().Use(next => (context) =>
+            routes.MapRouteToMiddleware("middleware/{tenant}", a =>
             {
-                context.Request.Headers["TenantId"] = context.GetRouteValue("tenant");
-                return next(context);
-            }));
+                a.New().Use(next => (context) =>
+                {
+                    context.Request.Headers["TenantId"] = context.GetRouteValue("tenant");
+                    return next(context);
+                });
 
-            routes.AddPrefixRoute("api/store");
-
-            routes.MapRoute("defaultRoute",
-                                  "api/constraint/{controller}",
-                                  null,
-                                  new { controller = "my.*" });
-            routes.MapRoute("regexStringRoute",
-                                  "api/rconstraint/{controller}",
-                                  new { foo = "Bar" },
-                                  new { controller = new RegexRouteConstraint("^(my.*)$") });
-            routes.MapRoute("regexRoute",
-                                  "api/r2constraint/{controller}",
-                                  new { foo = "Bar2" },
-                                  new
-                                  {
-                                      controller = new RegexRouteConstraint(
-                                          new Regex("^(my.*)$", RegexOptions.None, TimeSpan.FromSeconds(10)))
-                                  });
-
-            routes.MapRoute("parameterConstraintRoute",
-                                  "api/{controller}/{*extra}",
-                                  new { controller = "Store" });
-
-            routes.AddPrefixRoute("hello/world", endpoint2);
-
-            routes.MapLocaleRoute("en-US", "store/US/{action}", new { controller = "Store" });
-            routes.MapLocaleRoute("en-GB", "store/UK/{action}", new { controller = "Store" });
-
-            routes.AddPrefixRoute("", endpoint2);
-
-            app.UseRouter(routes.Build());
+                a.Use(next => (context) =>
+                {
+                    return context.Response.WriteAsync($"Hello {context.Request.Headers["TenantId"]}");
+                });
+            });
         }
     }
 }

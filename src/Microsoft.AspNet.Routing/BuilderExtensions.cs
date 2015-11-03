@@ -33,15 +33,16 @@ namespace Microsoft.AspNet.Builder
             return builder.UseMiddleware<RouterMiddleware>(router);
         }
 
-        public static IRouteBuilder UseRouter(this IApplicationBuilder builder)
+        public static IRouteBuilder BuildRouteTable(this IApplicationBuilder builder)
         {
-            return builder.UseRouter(defaultHandler: null);
+            return builder.BuildRouteTable(defaultHandler: null);
         }
 
-        public static IRouteBuilder UseRouter(this IApplicationBuilder builder, IRouteEndpoint defaultHandler)
+        public static IRouteBuilder BuildRouteTable(this IApplicationBuilder builder, IRouteEndpoint defaultHandler)
         {
             return new RouteBuilder()
             {
+                ApplicationBuilder = builder,
                 ConstraintResolver = builder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>(),
                 DefaultHandler = defaultHandler,
                 ServiceProvider = builder.ApplicationServices,

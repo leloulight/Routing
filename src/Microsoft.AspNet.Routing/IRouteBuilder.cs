@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNet.Builder;
 
 namespace Microsoft.AspNet.Routing
 {
@@ -11,6 +12,8 @@ namespace Microsoft.AspNet.Routing
     /// </summary>
     public interface IRouteBuilder
     {
+        IApplicationBuilder ApplicationBuilder { get; }
+
         IInlineConstraintResolver ConstraintResolver { get; }
 
         /// <summary>
