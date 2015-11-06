@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.AspNet.Routing;
-using Microsoft.AspNet.Routing.Template;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace RoutingSample.Web
 {
