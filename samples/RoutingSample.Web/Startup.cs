@@ -1,12 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Threading;
 using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Routing;
-using Microsoft.AspNet.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace RoutingSample.Web
@@ -18,48 +18,40 @@ namespace RoutingSample.Web
             services.AddRouting();
         }
 
-        public void Configure(IApplicationBuilder builder)
+        public void Configure(IApplicationBuilder app)
         {
-            var endpoint1 = new DelegateRouteEndpoint(async (context) =>
-                                                        await context
-                                                                .HttpContext
-                                                                .Response
-                                                                .WriteAsync(
-                                                                  "match1, route values -" + context.RouteData.Values.Print()));
+            var endpoint1 = new RouteHandler((c) =>
+            {
+                return c.Response.WriteAsync($"match1, route values - {string.Join(", ", c.GetRouteData().Values)}");
+            });
 
-            var endpoint2 = new DelegateRouteEndpoint(async (context) =>
-                                                        await context
-                                                                .HttpContext
-                                                                .Response
-                                                                .WriteAsync("Hello, World!"));
+            var endpoint2 = new RouteHandler((c) => c.Response.WriteAsync("Hello, World!"));
 
-            var routeBuilder = new RouteBuilder();
-            routeBuilder.DefaultHandler = endpoint1;
-            routeBuilder.ServiceProvider = builder.ApplicationServices;
+            var routeBuilder = new RouteBuilder(app)
+            {
+                DefaultHandler = endpoint1,
+            };
 
-            routeBuilder.AddPrefixRoute("api/store");
+            routeBuilder.MapRoute("api/status/{item}", c => c.Response.WriteAsync($"{c.GetRouteValue("item")} is just fine."));
+            routeBuilder.MapRoute("localized/{lang=en-US}", b =>
+            {
+                b.Use(next => async (c) =>
+                {
+                    var culture = new CultureInfo((string)c.GetRouteValue("lang"));
+#if DNX451
+                    Thread.CurrentThread.CurrentCulture = culture;
+                    Thread.CurrentThread.CurrentUICulture = culture;
+#else
+                    CultureInfo.CurrentCulture = culture;
+                    CultureInfo.CurrentUICulture = culture;
+#endif
+                    await next(c);
+                });
 
-            routeBuilder.MapRoute("defaultRoute",
-                                  "api/constraint/{controller}",
-                                  null,
-                                  new { controller = "my.*" });
-            routeBuilder.MapRoute("regexStringRoute",
-                                  "api/rconstraint/{controller}",
-                                  new { foo = "Bar" },
-                                  new { controller = new RegexRouteConstraint("^(my.*)$") });
-            routeBuilder.MapRoute("regexRoute",
-                                  "api/r2constraint/{controller}",
-                                  new { foo = "Bar2" },
-                                  new
-                                  {
-                                      controller = new RegexRouteConstraint(
-                                          new Regex("^(my.*)$", RegexOptions.None, TimeSpan.FromSeconds(10)))
-                                  });
+                b.Run(c => c.Response.WriteAsync($"What would you do with {1000000m:C}?"));
+            });
 
-            routeBuilder.MapRoute("parameterConstraintRoute",
-                                  "api/{controller}/{*extra}",
-                                  new { controller = "Store" });
-
+            routeBuilder.AddPrefixRoute("api/store", endpoint1);
             routeBuilder.AddPrefixRoute("hello/world", endpoint2);
 
             routeBuilder.MapLocaleRoute("en-US", "store/US/{action}", new { controller = "Store" });
@@ -67,7 +59,17 @@ namespace RoutingSample.Web
 
             routeBuilder.AddPrefixRoute("", endpoint2);
 
-            builder.UseRouter(routeBuilder.Build());
+            app.UseRouter(routeBuilder.Build());
+        }
+
+        public static void Main(string[] args)
+        {
+            var application = new WebApplicationBuilder()
+                .UseConfiguration(WebApplicationConfiguration.GetDefault(args))
+                .UseStartup<Startup>()
+                .Build();
+
+            application.Run();
         }
     }
 }

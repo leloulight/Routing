@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "description": "ASP.NET 5 middleware and abstractions for routing requests to application logic and for generating links.",
   "version": "1.0.0-rc1-final",
+=======
+  "description": "ASP.NET 5 middleware for routing requests to application logic and for generating links.",
+  "version": "1.0.0-*",
+>>>>>>> refs/remotes/aspnet/dev
   "repository": {
     "type": "git",
     "url": "git://github.com/aspnet/routing"
@@ -10,15 +15,41 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
+<<<<<<< HEAD
     "Microsoft.AspNet.Http.Extensions": "1.0.0-rc1-final",
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc1-final",
     "Microsoft.Extensions.OptionsModel": "1.0.0-rc1-final"
+=======
+    "Microsoft.AspNet.Http.Extensions": "1.0.0-*",
+    "Microsoft.AspNet.Routing.Abstractions": "1.0.0-*",
+    "Microsoft.AspNet.Routing.DecisionTree.Sources": {
+      "type": "build",
+      "version": "1.0.0-*"
+    },
+    "Microsoft.Extensions.HashCodeCombiner.Sources": {
+      "type": "build",
+      "version": "1.0.0-*"
+    },
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-*",
+    "Microsoft.Extensions.ObjectPool": "1.0.0-*",
+    "Microsoft.Extensions.Options": "1.0.0-*",
+    "Microsoft.Extensions.PropertyHelper.Sources": {
+      "type": "build",
+      "version": "1.0.0-*"
+    }
+>>>>>>> refs/remotes/aspnet/dev
   },
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "dotnet5.4": {
       "dependencies": {
+<<<<<<< HEAD
         "System.Text.RegularExpressions": "4.0.11-beta-23516"
+=======
+        "System.Collections": "4.0.11-*",
+        "System.Text.RegularExpressions": "4.0.11-*",
+        "System.Runtime": "4.0.21-*"
+>>>>>>> refs/remotes/aspnet/dev
       }
     }
   }

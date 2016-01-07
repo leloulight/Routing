@@ -1,13 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if DNX451
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.OptionsModel;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -344,7 +343,7 @@ namespace Microsoft.AspNet.Routing.Tests
             public bool Match(HttpContext httpContext,
                               IRouter route,
                               string routeKey,
-                              IDictionary<string, object> values,
+                              RouteValueDictionary values,
                               RouteDirection routeDirection)
             {
                 return true;
@@ -362,7 +361,7 @@ namespace Microsoft.AspNet.Routing.Tests
             public bool Match(HttpContext httpContext,
                               IRouter route,
                               string routeKey,
-                              IDictionary<string, object> values,
+                              RouteValueDictionary values,
                               RouteDirection routeDirection)
             {
                 return true;
@@ -370,4 +369,3 @@ namespace Microsoft.AspNet.Routing.Tests
         }
     }
 }
-#endif

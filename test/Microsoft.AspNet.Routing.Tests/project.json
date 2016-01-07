@@ -3,6 +3,7 @@
     "warningsAsErrors": true
   },
   "dependencies": {
+<<<<<<< HEAD
     "Microsoft.AspNet.Http": "1.0.0-rc1-final",
     "Microsoft.AspNet.Routing": "1.0.0-rc1-final",
     "Microsoft.AspNet.Testing": "1.0.0-rc1-final",
@@ -12,6 +13,22 @@
   },
   "frameworks": {
     "dnxcore50": {},
+=======
+    "Microsoft.AspNet.Http": "1.0.0-*",
+    "Microsoft.AspNet.Routing": "1.0.0-*",
+    "Microsoft.AspNet.Testing": "1.0.0-*",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
+    "Microsoft.Extensions.Logging.Testing": "1.0.0-*",
+    "Microsoft.Extensions.WebEncoders": "1.0.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "frameworks": {
+    "dnxcore50": {
+      "dependencies": {
+        "moq.netcore": "4.4.0-beta8"
+      }
+    },
+>>>>>>> refs/remotes/aspnet/dev
     "dnx451": {
       "dependencies": {
         "Moq": "4.2.1312.1622"
@@ -21,4 +38,8 @@
   "commands": {
     "test": "xunit.runner.aspnet"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> refs/remotes/aspnet/dev

@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.OptionsModel;
+using Microsoft.Extensions.Options;
 using Xunit;
-using System.Linq;
 
 namespace Microsoft.AspNet.Routing.Tests
 {
@@ -982,7 +982,7 @@ namespace Microsoft.AspNet.Routing.Tests
             public bool Match(HttpContext httpContext,
                               IRouter route,
                               string routeKey,
-                              IDictionary<string, object> values,
+                              RouteValueDictionary values,
                               RouteDirection routeDirection)
             {
                 throw new NotImplementedException();

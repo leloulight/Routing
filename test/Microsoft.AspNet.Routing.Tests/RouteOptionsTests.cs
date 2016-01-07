@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNet.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.OptionsModel;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Microsoft.AspNet.Routing.Tests
@@ -16,10 +15,10 @@ namespace Microsoft.AspNet.Routing.Tests
         public void ConfigureRouting_ConfiguresOptionsProperly()
         {
             // Arrange
-            var services = new ServiceCollection().AddOptions();
+            var services = new ServiceCollection();
 
             // Act
-            services.ConfigureRouting(options => options.ConstraintMap.Add("foo", typeof(TestRouteConstraint)));
+            services.AddRouting(options => options.ConstraintMap.Add("foo", typeof(TestRouteConstraint)));
             var serviceProvider = services.BuildServiceProvider();
 
             // Assert
@@ -35,11 +34,12 @@ namespace Microsoft.AspNet.Routing.Tests
             }
 
             public string Pattern { get; private set; }
-            public bool Match(HttpContext httpContext,
-                              IRouter route,
-                              string routeKey,
-                              IDictionary<string, object> values,
-                              RouteDirection routeDirection)
+            public bool Match(
+                HttpContext httpContext,
+                IRouter route,
+                string routeKey,
+                RouteValueDictionary values,
+                RouteDirection routeDirection)
             {
                 throw new NotImplementedException();
             }

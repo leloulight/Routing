@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNet.Http;
@@ -42,7 +41,7 @@ namespace Microsoft.AspNet.Routing.Constraints
             HttpContext httpContext,
             IRouter route,
             string routeKey,
-            IDictionary<string, object> routeValues,
+            RouteValueDictionary values,
             RouteDirection routeDirection)
         {
             if (httpContext == null)
@@ -60,14 +59,14 @@ namespace Microsoft.AspNet.Routing.Constraints
                 throw new ArgumentNullException(nameof(routeKey));
             }
 
-            if (routeValues == null)
+            if (values == null)
             {
-                throw new ArgumentNullException(nameof(routeValues));
+                throw new ArgumentNullException(nameof(values));
             }
 
             object routeValue;
 
-            if (routeValues.TryGetValue(routeKey, out routeValue)
+            if (values.TryGetValue(routeKey, out routeValue)
                 && routeValue != null)
             {
                 var parameterValueString = Convert.ToString(routeValue, CultureInfo.InvariantCulture);

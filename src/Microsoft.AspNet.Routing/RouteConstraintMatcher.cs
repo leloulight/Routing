@@ -4,18 +4,20 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Routing.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNet.Routing
 {
     public static class RouteConstraintMatcher
     {
-        public static bool Match(IReadOnlyDictionary<string, IRouteConstraint> constraints,
-                                 IDictionary<string, object> routeValues,
-                                 HttpContext httpContext,
-                                 IRouter route,
-                                 RouteDirection routeDirection,
-                                 ILogger logger)
+        public static bool Match(
+            IDictionary<string, IRouteConstraint> constraints,
+            RouteValueDictionary routeValues,
+            HttpContext httpContext,
+            IRouter route,
+            RouteDirection routeDirection,
+            ILogger logger)
         {
             if (routeValues == null)
             {
@@ -52,12 +54,7 @@ namespace Microsoft.AspNet.Routing
                         object routeValue;
                         routeValues.TryGetValue(kvp.Key, out routeValue);
 
-                        logger.LogVerbose(
-                            "Route value '{RouteValue}' with key '{RouteKey}' did not match " +
-                            "the constraint '{RouteConstraint}'.",
-                            routeValue,
-                            kvp.Key,
-                            kvp.Value);
+                        logger.RouteValueDoesNotMatchConstraint(routeValue, kvp.Key, kvp.Value);
                     }
 
                     return false;

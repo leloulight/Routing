@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Http.Internal;
 using Microsoft.Extensions.Logging.Testing;
 using Xunit;
@@ -25,8 +26,7 @@ namespace Microsoft.AspNet.Routing
             var loggerFactory = new TestLoggerFactory(sink, enabled: true);
 
             var httpContext = new DefaultHttpContext();
-            httpContext.ApplicationServices = new ServiceProvider();
-            httpContext.RequestServices = httpContext.ApplicationServices;
+            httpContext.RequestServices = new ServiceProvider();
 
             RequestDelegate next = (c) =>
             {
@@ -57,8 +57,7 @@ namespace Microsoft.AspNet.Routing
             var loggerFactory = new TestLoggerFactory(sink, enabled: true);
 
             var httpContext = new DefaultHttpContext();
-            httpContext.ApplicationServices = new ServiceProvider();
-            httpContext.RequestServices = httpContext.ApplicationServices;
+            httpContext.RequestServices = new ServiceProvider();
 
             RequestDelegate next = (c) =>
             {
@@ -92,7 +91,7 @@ namespace Microsoft.AspNet.Routing
 
             public Task RouteAsync(RouteContext context)
             {
-                context.IsHandled = _isHandled;
+                context.Handler = _isHandled ? (RequestDelegate)((c) => Task.FromResult(0)) : null;
                 return Task.FromResult<object>(null);
             }
         }

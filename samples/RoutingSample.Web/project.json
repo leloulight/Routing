@@ -1,5 +1,6 @@
 {
   "dependencies": {
+<<<<<<< HEAD
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
     "Microsoft.AspNet.Server.IIS": "1.0.0-*",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
@@ -15,3 +16,19 @@
   },
   "webroot": "wwwroot"
 }
+=======
+    "Microsoft.AspNet.Server.Kestrel": "1.0.0-*",
+    "Microsoft.AspNet.Routing.Extensions": "1.0.0-*"
+  },
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+  "commands": {
+    "web": "RoutingSample.Web"
+  },
+  "frameworks": {
+    "dnx451": { },
+    "dnxcore50": { }
+  }
+}
+>>>>>>> refs/remotes/aspnet/dev

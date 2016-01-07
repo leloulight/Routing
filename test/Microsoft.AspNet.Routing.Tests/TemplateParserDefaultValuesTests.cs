@@ -1,12 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if DNX451
-
 using System;
 using Microsoft.AspNet.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.OptionsModel;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -29,7 +27,7 @@ namespace Microsoft.AspNet.Routing.Tests
                 constraints: null);
 
             // Assert
-            var defaults = ((Template.TemplateRoute)routeBuilder.Routes[0]).Defaults;
+            var defaults = ((Route)routeBuilder.Routes[0]).Defaults;
             Assert.Equal("12", defaults["id"]);
         }
 
@@ -48,7 +46,7 @@ namespace Microsoft.AspNet.Routing.Tests
                 constraints: null);
 
             // Assert
-            var defaults = ((Template.TemplateRoute)routeBuilder.Routes[0]).Defaults;
+            var defaults = ((Route)routeBuilder.Routes[0]).Defaults;
             Assert.Equal(value, defaults["p1"]);
         }
 
@@ -98,26 +96,28 @@ namespace Microsoft.AspNet.Routing.Tests
             var routeBuilder = CreateRouteBuilder();
 
             // Act & Assert
-            var ex = Assert.Throws<ArgumentException>(
-                                () => routeBuilder.MapRoute("mockName",
-                                                            "{controller}/{action}/{id:int=12?}",
-                                                            defaults: new { id = 13 },
-                                                            constraints: null));
+            var ex = Assert.Throws<ArgumentException>(() =>
+            {
+                routeBuilder.MapRoute(
+                    "mockName",
+                    "{controller}/{action}/{id:int=12?}",
+                    defaults: new { id = 13 },
+                    constraints: null);
+            });
 
             Assert.Equal(message, ex.Message);
         }
 
         private static IRouteBuilder CreateRouteBuilder()
         {
-            var routeBuilder = new RouteBuilder();
+            var services = new ServiceCollection();
+            services.AddSingleton<IInlineConstraintResolver>(_inlineConstraintResolver);
 
-            routeBuilder.DefaultHandler = new Mock<IRouter>().Object;
+            var applicationBuilder = Mock.Of<IApplicationBuilder>();
+            applicationBuilder.ApplicationServices = services.BuildServiceProvider();
 
-            var serviceProviderMock = new Mock<IServiceProvider>();
-            serviceProviderMock.Setup(o => o.GetService(typeof(IInlineConstraintResolver)))
-                               .Returns(_inlineConstraintResolver);
-            routeBuilder.ServiceProvider = serviceProviderMock.Object;
-
+            var routeBuilder = new RouteBuilder(applicationBuilder);
+            routeBuilder.DefaultHandler = Mock.Of<IRouter>();
             return routeBuilder;
         }
 
@@ -130,5 +130,3 @@ namespace Microsoft.AspNet.Routing.Tests
         }
     }
 }
-
-#endif
